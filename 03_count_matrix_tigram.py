@@ -1,0 +1,60 @@
+import torch
+
+# 1. Load data
+words = open('names.txt','r').read().splitlines()
+
+# 2. Setup vocabulary mapping
+chars = sorted(list(set((''.join(words)))))
+stoi = {s:i+1 for i, s in enumerate(chars)}
+stoi['.'] = 0
+itos = {i:s for s, i in stoi.items()}
+
+# 3. Build the counting matrix N
+N = torch.zeros((27, 27, 27), dtype=torch.int32)
+for w in words:
+    chs = ['.'] + list(w) + ['.']
+    for ch1, ch2, ch3 in zip(chs, chs[1:], chs[2:]):
+        ix1 = stoi[ch1]
+        ix2 = stoi[ch2]
+        ix3 = stoi[ch3]
+        N[ix1, ix2, ix3] += 1
+        
+# 4. Normalize counts to probabilities (with +1 smoothing)
+p = (N + 1).float()
+p /= p.sum(2, keepdims=True)
+
+# 5. Calculate Negative Log-Likelihood (Loss)
+log_likelihood = 0.0
+n = 0.0
+
+for w in words:
+    chs = ['.'] + list(w) + ['.']
+    for ch1, ch2, ch3 in zip(chs, chs[1:], chs[2:]):
+        ix1 = stoi[ch1]
+        ix2 = stoi[ch2]
+        ix3 = stoi[ch3]
+        prob = p[ix1, ix2, ix3]
+        logprob = torch.log(prob)
+        log_likelihood += logprob
+        n += 1
+
+nll = -log_likelihood
+print(f'{log_likelihood =}')
+print(f'nll (Total Negative Log Likelihood): {nll:.4f}')
+print(f'Average Loss (NLL / n): {nll/n:.4f}')
+
+# 6. Generate Names
+g = torch.Generator().manual_seed(2147483647)
+
+print("\n ---Model Generated Names--- ")
+for i in range(5):
+    out = []
+    ix1 = 0
+    ix2 = 0
+    while True:
+        p_dist = p[ix1, ix2]
+        ix3= torch.multinomial(p_dist, num_samples=1, replacement=True, generator=g).item()
+        if ix3 == 0:
+            break
+        out.append(itos[ix3])
+    print(''.join(out))
