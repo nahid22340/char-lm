@@ -7,11 +7,13 @@ I will upload Count Matrix and Neural Net approach of both models in distinct fi
 
 ## Project Structure
 
+```text
 character-language-model/
 │
 ├── names.txt                 # Dataset of names used for training
 ├── 01_bigram_counting.py     # 2D Frequency counting matrix for bigrams
 ├── 02_bigram_nn.py           # Bigram model trained via Cross-Entropy Loss & Gradient Descent
-├── 03_trigram_counting.py    # 3D Frequency counting matrix for trigrams with smoothing
+├── 03_trigram_counting.py    # 3D Frequency counting matrix for trigrams 
 ├── 04_trigram_nn.py          # Trigram neural network with dual-character context
 └── README.md                 # Project documentation and performance benchmarks
+```
