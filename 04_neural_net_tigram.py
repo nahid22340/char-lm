@@ -26,15 +26,14 @@ g = torch.Generator().manual_seed(2147483647)
 w = torch.randn((54, 27), generator=g, requires_grad=True)
 
 for k in range (44):
-  # # Forward Pass
-  # 2. Concatenate them along dimension 1 (columns)
+#   Forward Pass
   xenc = torch.cat([xenc1, xenc2], dim=1)  # Shape becomes (N, 54)
   logits = xenc @ w
   counts = logits.exp()
   probs = counts / counts.sum(1, keepdims = True)
   loss = -probs[torch.arange(len(zs)), zs].log().mean()
 
-  # Backword Pass
+  # Backward Pass
   w.grad = None
   loss.backward()
 
@@ -53,7 +52,7 @@ for i in range(5):
     xenc2 = F.one_hot(torch.tensor([ix2]), num_classes=27).float()
     xenc = torch.cat([xenc1, xenc2], dim=1) # Shape (1, 54)
 
-    # 2. Forward pass through your trained weights w
+    # 2. Forward pass through trained weights w
     logits = xenc @ w # Shape (1, 27)
     counts = logits.exp()
     p_dist = counts / counts.sum(1, keepdims=True) # Probabilities
